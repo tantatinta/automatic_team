@@ -10,12 +10,8 @@ const outputPath = path.join(OUTPUT_DIR, 'team.html');
 
 const render = require('./lib/htmlRenderer');
 
-// Write code to use inquirer to gather information about the development team members,
-// and to create objects for each team member (using the correct classes as blueprints!)
+const employeeList = [];
 
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
 
 const managerQuestions = [
     {
@@ -50,7 +46,7 @@ const engineerQuestions = [
 	{
         type: "input",
         message: "What is your enginner's ID?",
-        name: "ID"
+        name: "id"
     },
 	{
         type: "input",
@@ -88,21 +84,66 @@ const internQuestions = [
     }
 ]
 
-        // {
-        // type: "list",
-        // message: "Which type of team member would you like to add?",
-        // name:
-        // choices: [
-        //     "engineer",
-        //     "intern",
-        //     "I don't want to add any more team members"
-        // ]
-        // }
-
 const init = () => {
-    inquirer.prompt(managerQuestions).then(function(answers){})
+    inquirer.prompt(managerQuestions).then(function(answers){
+        console.log(answers);
+        const manager = new Manager(answers.name, answers.id, answers.email, answers.officeNumber);
+        employeeList.push(manager);
+        chooseEmployee();
+    })
 
 };
+
+const chooseEmployee = () => {
+    inquirer.prompt([{
+        type: "list",
+        message: "Which type of team member would you like to add?",
+        name: "employeeType",
+        choices: [
+            "engineer",
+            "intern",
+            "I don't want to add any more team members"
+        ]
+        }]).then(function(answers) {
+        switch(answers.employeeType) {
+            case "engineer":
+                createEngineer();
+                break;
+            case "intern":
+                createIntern();
+                break;
+            default:
+                renderHandler();
+        }
+        })
+}
+
+function createEngineer() {
+    inquirer.prompt(engineerQuestions).then(function(answers) {
+        const engineer =  new Engineer(answers.name, answers.id, answers.email, answers.github);
+        employeeList.push(engineer);
+        chooseEmployee();
+    })
+};
+
+function createIntern() {
+    inquirer.prompt(internQuestions).then(function(answers){
+        const intern = new Intern(answers.name, answers.id, answers.email, answers.school);
+        employeeList.push(intern);
+        chooseEmployee();
+    })
+};
+
+function renderHandler() {
+    //this function exits the inquirer and calls the render
+    if(!fs.existsSync(OUTPUT_DIR)) {
+    console.log(employeeList);
+    fs.mkdirSync(OUTPUT_DIR);
+    }
+    fs.writeFileSync(outputPath, render(employeeList));
+};
+
+init();
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
@@ -116,6 +157,6 @@ const init = () => {
 // does not. The fs npm package may have methods to check if a directory exists, and they
 // may also have methods to create a directory that doesn't...
 
-init();
+
 
 
