@@ -4,14 +4,10 @@ const Intern = require('./lib/Intern');
 const inquirer = require('inquirer');
 const path = require('path');
 const fs = require('fs');
-
+const render = require('./lib/htmlRenderer');
 const OUTPUT_DIR = path.resolve(__dirname, 'output');
 const outputPath = path.join(OUTPUT_DIR, 'team.html');
-
-const render = require('./lib/htmlRenderer');
-
 const employeeList = [];
-
 
 const managerQuestions = [
     {
@@ -35,7 +31,7 @@ const managerQuestions = [
         name: "officeNumber"
     }   
 
-]
+];
 
 const engineerQuestions = [
     {
@@ -47,6 +43,7 @@ const engineerQuestions = [
         type: "input",
         message: "What is your enginner's ID?",
         name: "id"
+        
     },
 	{
         type: "input",
@@ -82,11 +79,10 @@ const internQuestions = [
         message: "What is your intern's school?",
         name: "school"
     }
-]
+];
 
 const init = () => {
     inquirer.prompt(managerQuestions).then(function(answers){
-        console.log(answers);
         const manager = new Manager(answers.name, answers.id, answers.email, answers.officeNumber);
         employeeList.push(manager);
         chooseEmployee();
@@ -116,7 +112,7 @@ const chooseEmployee = () => {
                 renderHandler();
         }
         })
-}
+};
 
 function createEngineer() {
     inquirer.prompt(engineerQuestions).then(function(answers) {
@@ -135,28 +131,10 @@ function createIntern() {
 };
 
 function renderHandler() {
-    //this function exits the inquirer and calls the render
-    if(!fs.existsSync(OUTPUT_DIR)) {
-    console.log(employeeList);
+    if(!fs.existsSync(OUTPUT_DIR)) {    
     fs.mkdirSync(OUTPUT_DIR);
     }
     fs.writeFileSync(outputPath, render(employeeList));
 };
 
 init();
-
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
-
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above to target this location.
-
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not. The fs npm package may have methods to check if a directory exists, and they
-// may also have methods to create a directory that doesn't...
-
-
-
-
